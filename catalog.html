@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мотоаукцион - Каталог</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <script src="js/bikes_data.js"></script>
+    <script src="js/core.js"></script>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --acc: #f39c12; --txt: #fff; }
+        body { background: var(--bg); color: var(--txt); font-family: sans-serif; margin: 0; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #151515; border-bottom: 2px solid var(--acc); margin-bottom: 30px; }
+        .balance-badge { background: rgba(243,156,18,0.1); border: 1px solid var(--acc); padding: 8px 15px; border-radius: 20px; color: var(--acc); font-weight: bold; }
+        .profile-container { position: relative; }
+        .avatar-trigger { width: 45px; height: 45px; background: var(--acc); border-radius: 50%; cursor: pointer; border: 2px solid #333; }
+        .dropdown-menu { display: none; position: absolute; left: 0; top: 55px; background: #1e1e1e; border: 1px solid #333; border-radius: 8px; width: 220px; z-index: 1000; }
+        .dropdown-menu.active { display: block; }
+        .dropdown-menu a { display: block; padding: 12px 15px; color: #ddd; text-decoration: none; border-bottom: 1px solid #2a2a2a; }
+        .dropdown-menu a:hover { background: #2a2a2a; color: var(--acc); }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .bike-card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #333; position: relative; transition: 0.3s; }
+        .bike-card:hover { transform: translateY(-8px); border-color: var(--acc); }
+        .rarity-badge { position: absolute; top: 15px; right: 15px; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #000; }
+        .bike-img { width: 100%; height: 180px; object-fit: cover; background: #222; }
+        .bike-info { padding: 20px; }
+        .bike-price { font-size: 24px; color: var(--acc); font-weight: 800; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="profile-container">
+            <div class="avatar-trigger" onclick="toggleMenu()"></div>
+            <div id="dropdown-menu" class="dropdown-menu">
+               <a href="game.html">🏠 Главная</a>
+                    <a href="garage.html">🏗 Гараж</a>
+                    <a href="invest.html">🎰 Мото-Минёр</a>
+                    <a href="catalog.html">📖 Каталог</a>
+                    <a href="auction.html">🔨 Аукцион</a>
+                    <a href="#">⚙️ Настройки</a>
+                    <a href="index.html" style="color: #ff4d4d;">🚪 Выход</a>
+            </div>
+        </div>
+        <div class="balance-badge">OCTANES: <span id="user-balance">0</span> 🔥</div>
+    </header>
+    <h1>Каталог</h1>
+    <div class="catalog-grid" id="catalog-list"></div>
+
+    <script>
+        const toggleMenu = () => document.getElementById('dropdown-menu').classList.toggle('active');
+
+        function render() {
+            const list = document.getElementById('catalog-list');
+            const bal = localStorage.getItem('octanes') || "5000000";
+            document.getElementById('user-balance').innerText = Number(bal).toLocaleString();
+
+            if (typeof BIKES_DATABASE === 'undefined') {
+                list.innerHTML = "<h2 style='color:red; text-align:center'>Ошибка: Файл js/bikes_data.js не найден!</h2>";
+                return;
+            }
+
+            list.innerHTML = BIKES_DATABASE.map(b => `
+                <div class="bike-card">
+                    <div class="rarity-badge" style="background:${b.color}">${b.rarity}</div>
+                    <img src="img/${b.img}" class="bike-img" onerror="this.src='https://placeholder.com{b.name}'"><div class="bike-info">
+                        <div style="color:#888;font-size:12px;text-transform:uppercase">${b.type}</div>
+                        <h3 style="margin:5px 0">${b.name}</h3>
+                        <div class="bike-price">${b.price.toLocaleString()} $</div>
+                        <div style="color:#666;font-size:13px">Шанс: ${b.chance}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.profile-container')) document.getElementById('dropdown-menu').classList.remove('active');
+        });
+
+        window.onload = render;
+    </script>
+</body>
+</html>
