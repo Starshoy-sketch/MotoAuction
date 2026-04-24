@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мотоаукцион</title>
+    <style>
+        :root { --gold: #f39c12; --bg: #0f0f0f; --panel: #1c2529; --green: #2ecc71; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow-x: hidden; }
+        .header { display: flex; align-items: center; padding: 12px 25px; background: #111; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 1000; }
+        .profile-btn { display: flex; align-items: center; cursor: pointer; position: relative; }
+        .avatar { width: 42px; height: 42px; background: var(--gold); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; color: black; border: 2px solid white; }
+        .octanes-badge { background: #000; border: 1px solid var(--gold); padding: 6px 18px; border-radius: 20px; margin-left: 12px; font-weight: 900; color: var(--gold); }
+        .dropdown { display: none; position: absolute; top: 65px; left: 0; background: var(--panel); width: 220px; border-radius: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1px solid #2c3e50; }
+        .dropdown.active { display: block; }
+        .menu-item { padding: 14px 20px; display: flex; align-items: center; text-decoration: none; color: #bdc3c7; font-size: 15px; border-bottom: 1px solid #2c3e50; }
+        .menu-item:hover { background: #2c3e50; color: white; }
+        .menu-item.active { background: var(--gold); color: black; font-weight: bold; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: #151515; border: 1px solid #333; border-radius: 20px; padding: 30px; text-align: center; position: relative; transition: 0.3s; }
+        .card.my-bid { border-color: var(--green); box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
+        .timer { position: absolute; top: 15px; right: 15px; background: #e74c3c; padding: 5px 12px; border-radius: 8px; font-family: monospace; font-weight: bold; }
+        .bike-img { width: 100%; height: 160px; object-fit: contain; margin: 20px 0; transition: 0.3s; }
+        .price-value { font-size: 32px; color: var(--green); font-weight: 900; margin-bottom: 20px; }
+        .status-info { font-size: 12px; height: 20px; margin-bottom: 10px; color: var(--gold); text-transform: uppercase; font-weight: bold; }
+        .btn-bid { width: 100%; padding: 16px; background: transparent; border: 2px solid var(--gold); color: var(--gold); border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-bid:hover:not(:disabled) { background: var(--gold); color: black; }
+        .btn-bid:disabled { border-color: #444; color: #444; cursor: not-allowed; }
+        .btn-skip { display: none; width: 100%; padding: 16px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="profile-btn" onclick="document.getElementById('mainDrop').classList.toggle('active'); event.stopPropagation();">
+            <div class="avatar">C</div>
+            <div class="octanes-badge">OCTANES: <span id="userBal">5,000,000</span> ⛽</div>
+            <div class="dropdown" id="mainDrop">
+                   <a href="game.html">🏠 Главная</a>
+                    <a href="garage.html">🏗 Гараж</a>
+                    <a href="invest.html">🎰 Мото-Минёр</a>
+                    <a href="catalog.html">📖 Каталог</a>
+                    <a href="auction.html">🔨 Аукцион</a>
+                    <a href="#">⚙️ Настройки</a>
+                    <a href="index.html" style="color: #ff4d4d;">🚪 Выход</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1 style="text-align:center; letter-spacing:8px; margin-bottom:50px;">LIVE AUCTION</h1>
+        <div class="grid">
+            <div class="card" id="lot1">
+                <div class="timer" id="t1">00:30</div>
+                <img src="https://imgur.com" class="bike-img">
+                <h3 id="n1">Ducati Panigale V4</h3>
+                <div class="status-info" id="s1">Торги открыты</div>
+                <div class="price-value"><span id="p1">1,200,000</span></div>
+                <button class="btn-bid" id="b1" onclick="bid(1)">Ставка +50к</button>
+                <button class="btn-skip" id="sk1" onclick="skip(1)">Пропустить ожидание (AD)</button>
+            </div>
+            <div class="card" id="lot2">
+                <div class="timer" id="t2">00:25</div>
+                <img src="https://imgur.com" class="bike-img">
+                <h3 id="n2">Kawasaki Ninja H2R</h3>
+                <div class="status-info" id="s2">Торги открыты</div>
+                <div class="price-value"><span id="p2">2,800,000</span></div>
+                <button class="btn-bid" id="b2" onclick="bid(2)">Ставка +100к</button>
+                <button class="btn-skip" id="sk2" onclick="skip(2)">Пропустить ожидание (AD)</button>
+            </div>
+        </div>
+    </div>
+    <script>
+const bikes = [
+    { n: "Ducati Panigale V4", p: 1200000, i: "ducati.png", s: 50000 },
+    { n: "Kawasaki Ninja H2R", p: 2800000, i: "kawasaki.png", s: 100000 },
+    { n: "BMW S1000RR", p: 1500000, i: "bmw.png", s: 70000 },
+    { n: "Yamaha R1M", p: 1800000, i: "yamaha.png", s: 80000 }
+];
+let bal = parseInt(localStorage.getItem('octanes')) || 5000000;
+let lots = {
+    1: { t: 30, act: true, my: 0, cur: 1200000, s: 50000, n: "Ducati Panigale V4", wait: false, lim: 1700000 },
+    2: { t: 25, act: true, my: 0, cur: 2800000, s: 100000, n: "Kawasaki Ninja H2R", wait: false, lim: 3500000 }
+};
+function upd() {
+    document.getElementById('userBal').innerText = bal.toLocaleString();
+    localStorage.setItem('octanes', bal);
+    for (let id in lots) if (document.getElementById(`p${id}`)) document.getElementById(`p${id}`).innerText = lots[id].cur.toLocaleString();
+}
+function bid(id) {
+    let l = lots[id]; if (l.wait) return;
+    let o = l.cur + l.s;
+    if (bal >= o) {
+        bal -= o; l.cur = o; l.my = o; l.t = Math.min(l.t + 4, 30);
+        document.getElementById(`s${id}`).innerText = "ВАША СТАВКА!";
+        document.getElementById(`lot${id}`).classList.add('my-bid');
+        upd();
+        setTimeout(() => bot(id), 1000 + Math.random() * 3000);
+    } else alert("Мало Октанов!");
+}
+function bot(id) {
+    let l = lots[id];
+    if (l.act && !l.wait && l.my > 0 && l.cur < l.lim) {
+        bal += l.my; l.my = 0; l.cur += l.s; l.t = Math.min(l.t + 3, 30);
+        document.getElementById(`s${id}`).innerText = "ВАС ПЕРЕБИЛИ!";
+        document.getElementById(`lot${id}`).classList.remove('my-bid');
+        upd();
+    }
+}
+function finishLot(id) {
+    let l = lots[id];
+    l.act = false; l.wait = true;
+    let b = document.querySelector(`#lot${id} button`);
+    b.style.display = "none";
+    document.getElementById(`sk${id}`).style.display = "block";
+    document.getElementById(`lot${id}`).querySelector('img').style.opacity = "0.2";
+    if (l.my > 0) {
+        document.getElementById(`s${id}`).innerText = "ВЫ КУПИЛИ БАЙК!";
+        let garage = JSON.parse(localStorage.getItem('myGarage')) || [];
+        garage.push({ name: l.n, img: l.i });
+        localStorage.setItem('myGarage', JSON.stringify(garage));
+        if (l.my > 0) {
+    let earnedXP = Math.floor(l.cur / 100); 
+    earnedXP = Math.max(10, Math.min(earnedXP, 800));
+    if (typeof addXP === 'function') addXP(earnedXP);
+}
+    } else {
+        document.getElementById(`s${id}`).innerText = "ПРОДАНО ДРУГОМУ";
+    }
+    l.t = 60 + Math.floor(Math.random() * 61);
+}
+function spawn(id) {
+    const b = bikes[Math.floor(Math.random() * bikes.length)];
+    lots[id] = { t: 25, act: true, my: 0, cur: b.p, s: b.s, n: b.n, wait: false, lim: b.p * 1.3 };
+    const c = document.getElementById(`lot${id}`);
+    c.classList.remove('my-bid');
+    c.querySelector('img').style.opacity = "1";
+    c.querySelector('img').src = b.i;
+    document.getElementById(`n${id}`).innerText = b.n;
+    document.getElementById(`b${id}`).style.display = "block";
+    document.getElementById(`b${id}`).disabled = false;
+    document.getElementById(`sk${id}`).style.display = "none";
+    document.getElementById(`s${id}`).innerText = "Торги начались!";
+    upd();
+}
+function skip(id) { lots[id].t = 0; }
+setInterval(() => {
+    for (let id in lots) {
+        let l = lots[id];
+        if (l.t > 0) {
+            l.t--;
+            let m = Math.floor(l.t / 60), s = l.t % 60;
+            document.getElementById(`t${id}`).innerText = `${m}:${s < 10 ? '0' + s : s}`;
+        } else if (l.act && !l.wait) {
+            finishLot(id);
+        } else if (l.wait && l.t <= 0) spawn(id);
+    }
+}, 1000);
+window.onclick = () => document.getElementById('mainDrop').classList.remove('active');
+upd();
+    </script>
+</body>
+</html>

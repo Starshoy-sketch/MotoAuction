@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Garage</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            overflow-x: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 2px solid #f1c40f;
+        }
+        .player-zone {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-container { position: relative; }
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background: #f1c40f;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            left: 0;
+            background: #34495e;
+            min-width: 180px;
+            border-radius: 4px;
+            z-index: 1000;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+        .dropdown.active { display: block; }
+        .dropdown a {
+            display: block;
+            color: white;
+            padding: 12px 15px;
+            text-decoration: none;
+            border-bottom: 1px solid #2c3e50;
+        }
+        .dropdown a:hover { background: #f1c40f; color: #2c3e50; }
+        .wallet {
+            background: #111;
+            padding: 6px 15px;
+            border-radius: 20px;
+            border: 1px solid #f1c40f;
+            display: flex;
+            align-items: center;
+        }
+        #moneyAmount { color: #f1c40f; font-weight: bold; margin-left: 5px; }
+        .garage-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .garage-title {
+            color: #f1c40f;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .garage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 300px); 
+            gap: 30px;
+            justify-content: center;
+        }
+        .bike-slot {
+            background: #2c3e50;
+            width: 300px;
+            border-radius: 12px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+        .bike-slot:hover { border-color: #f1c40f; transform: translateY(-5px); }
+        .bike-slot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+        .bike-name { font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+        .bike-actions { display: flex; gap: 10px; }
+        .action-btn {
+            flex: 1;
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .action-btn:hover { background: #f1c40f; color: #2c3e50; }
+        .action-btn.sell:hover { background: #e74c3c; color: white; }
+        .slot-empty {
+            border: 2px dashed #34495e;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+            color: #34495e;
+            font-weight: bold;
+        }
+        .ad-unlock {
+            border: 2px solid #27ae60;
+            background: rgba(39, 174, 96, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            min-height: 280px;
+        }
+        .ad-unlock:hover { background: rgba(39, 174, 96, 0.2); }
+        .ad-icon { font-size: 30px; margin-bottom: 10px; }
+        .ad-progress {
+            background: #27ae60;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="player-zone">
+            <div class="profile-container">
+                <div class="avatar" id="profileBtn">
+                    <img src="avatar.png..jpg" alt="P">
+                </div>
+                <div class="dropdown" id="profileMenu">
+                    <a href="game.html">🏠 Главная</a>
+                    <a href="garage.html">🏗 Гараж</a>
+                    <a href="invest.html">🎰 Мото-Минёр</a>
+                    <a href="catalog.html">📖 Каталог</a>
+                    <a href="auction.html">🔨 Аукцион</a>
+                    <a href="#">⚙️ Настройки</a>
+                    <a href="index.html" style="color: #ff4d4d;">🚪 Выход</a>
+                </div>
+            </div>
+            <div class="wallet">
+                <span style="font-size: 11px; color: #888;">OCTANES:</span>
+                <span id="moneyAmount">15000</span>
+                <span style="margin-left:5px">🔥</span>
+            </div>
+        </div>
+    </header>
+    <main class="garage-container">
+        <div class="garage-title">
+            <h1>МОЙ ГАРАЖ</h1>
+            <span id="slotInfo" style="color: #888;">Мест: 0 / 0</span>
+        </div>
+        <div class="garage-grid" id="garageGrid">
+            <div class="bike-slot">
+                <div class="bike-name">DUCATI PANIGALE V4</div>
+                <img src="moto.png..png" alt="Bike">
+                <div class="bike-actions">
+                    <button class="action-btn">ВЫБРАТЬ</button>
+                    <button class="action-btn sell">ПРОДАТЬ</button>
+                </div>
+            </div>
+            <div class="bike-slot slot-empty">СВОБОДНО</div>
+            <div class="bike-slot slot-empty">СВОБОДНО</div>
+            <div class="bike-slot ad-unlock" id="unlockSlotBtn">
+                <div class="ad-icon">📺</div>
+                <span>НОВЫЙ СЛОТ</span>
+                <div class="ad-progress" id="adProgress">0 / 3</div>
+            </div>
+        </div>
+    </main>
+    <script>
+    let bal = parseInt(localStorage.getItem('octanes')) || 5000000;
+    let garage = JSON.parse(localStorage.getItem('myGarage')) || [];
+    let adViews = 0, isCooldown = false, currentStatus = "Novice";
+    const statusLimits = {"Novice": 4, "Pro": 8, "Legend": 15};
+
+    function updUI() {
+if(document.getElementById('moneyAmount')) document.getElementById('moneyAmount').innerText = bal.toLocaleString();
+        localStorage.setItem('octanes', bal);
+        renderBikes();
+    }
+
+    function renderBikes() {
+        const grid = document.getElementById('garageGrid');
+        const btn = document.getElementById('unlockSlotBtn');
+        if(!grid || !btn) return;
+        
+        document.querySelectorAll('.bike-slot:not(.ad-unlock)').forEach(s => s.remove());
+
+        garage.forEach((bike, i) => {
+            const s = document.createElement('div');
+            s.className = 'bike-slot';
+            s.innerHTML = `<img src="${bike.img}" style="width:100%"><p>${bike.name}</p><button onclick="sell(${i})" style="color:red;cursor:pointer;background:none;border:none;font-size:10px;">ПРОДАТЬ</button>`;
+            grid.insertBefore(s, btn);
+        });
+        updateStatusText();
+    }
+
+    function sell(idx) {
+        if(confirm("Продать байк за 1.1кк?")) {
+            bal += 1100000;
+            garage.splice(idx, 1);
+            localStorage.setItem('myGarage', JSON.stringify(garage));
+            updUI();
+        }
+    }
+
+    function getGameDay() {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const msk = new Date(utc + (3600000 * 3));
+        if (msk.getHours() < 6) msk.setDate(msk.getDate() - 1);
+        return msk.toDateString();
+    }
+
+    function updateStatusText() {
+        const grid = document.getElementById('garageGrid'), info = document.getElementById('slotInfo');
+        if (grid && info) {
+            const busy = garage.length;
+            const total = grid.querySelectorAll('.bike-slot').length;
+            info.innerText = "Мест: " + busy + " / " + total;
+        }
+    }
+
+    function checkDailyLimit() {
+        const day = getGameDay(), last = localStorage.getItem('lastUnlockDate');
+        let count = parseInt(localStorage.getItem('unlockedToday') || "0");
+        if (last !== day) { count = 0; localStorage.setItem('unlockedToday', "0"); localStorage.setItem('lastUnlockDate', day); }
+        const limit = statusLimits[currentStatus], btn = document.getElementById('unlockSlotBtn'), prog = document.getElementById('adProgress');
+        if (count >= limit) {
+            btn.style.opacity = "0.3"; btn.style.pointerEvents = "none";
+            btn.querySelector('span').innerText = "ЛИМИТ ИСЧЕРПАН";
+            prog.innerText = "В 06:00"; return true;
+        } else {
+            btn.style.opacity = "1"; btn.style.pointerEvents = "auto";
+            btn.querySelector('span').innerText = "НОВЫЙ СЛОТ"; return false;
+        }
+    }
+
+    document.getElementById('unlockSlotBtn').onclick = function() {
+        if (isCooldown || checkDailyLimit()) return;
+        adViews++;
+        const prog = document.getElementById('adProgress');
+        if (adViews < 3) {
+            prog.innerText = adViews + " / 3";
+            startCooldown(this, 10);
+        } else {
+            let count = parseInt(localStorage.getItem('unlockedToday') || "0") + 1;
+            localStorage.setItem('unlockedToday', count.toString());
+            localStorage.setItem('lastUnlockDate', getGameDay());
+            adViews = 0; checkDailyLimit(); updUI(); alert("Слот добавлен!");
+        }
+    };
+
+    function startCooldown(el, sec) {
+        isCooldown = true; el.style.opacity = "0.5";
+        const span = el.querySelector('span');
+        let left = sec;
+        const timer = setInterval(() => {
+            left--; span.innerText = "КД: " + left + "s";
+            if (left <= 0) { clearInterval(timer); isCooldown = false; if (!checkDailyLimit()) { el.style.opacity = "1"; span.innerText = "НОВЫЙ СЛОТ"; } }
+        }, 1000);
+    }
+
+    const pBtn = document.getElementById('profileBtn'), pMenu = document.getElementById('profileMenu');
+    if(pBtn) pBtn.onclick = (e) => { e.stopPropagation(); pMenu.classList.toggle('active'); };
+    window.onclick = () => { if(pMenu) pMenu.classList.remove('active'); };
+
+    checkDailyLimit();
+    updUI();
+    </script>
+</body>
+</html>
